@@ -44,12 +44,30 @@ frameMeio.grid(row=1, column=0, pady=1,padx=0, sticky=NSEW)
 frameBaixo = Frame(janela, width=1050, height=300,bg=co1, pady=20, relief='sunken')
 frameBaixo.grid(row=2, column=0, pady=0,padx=1, sticky=NSEW)
 
+#criando funçoes
+global tree
+ 
+#funçao inserir
+def inserir():
+  global imagem, imagem_string, l_imagem
+  nome      = e_nome.get()
+  local     = e_local.get()
+  descricao = descricao.get()
+  modelo    = e_modelo.get()
+  data      = e_cal.get()
+  valor     = e_valor.get()
+  serie     = e_serial.get()
+  imagem    = imagem_string
+
+lista_inserir = [nome, local, descricao, modelo, data, valor, serie, imagem]
+
+
 #inserir imagem-icone
 app_img = Image.open ('icone.png')   
 app_img = app_img.resize((45,45))
 app_img = ImageTk.PhotoImage(app_img)
 
-app_logo = Label (frameCima, image=app_img, text=" Controle de Estoque Doméstico", width=900, compound=LEFT, relief=RAISED, anchor=NW, font=('Verdana 20 bold'), bg=co1, fg=co0)
+app_logo = Label (frameCima, image=app_img, text="Controle de Estoque Doméstico", width=900, compound=LEFT, relief=RAISED, anchor=NW, font=('Verdana 20 bold'), bg=co1, fg=co0)
 app_logo.place(x=0, y=0)     
 
 #criando loop de entrada
@@ -125,22 +143,58 @@ botao_item = Button(frameMeio, image=img_item, compound=LEFT, anchor=NW, text = 
 botao_item.place(x=330, y=221)
 
 #label quantidade e valores
-l_total = Label(frameMeio, width=14, height=2, anchor=CENTER, font=('Ivy 25 bold'), bg=co7, fg=co1, relief=FLAT)
-l_total.place(x=450,y=17)
+l_total = Label(frameMeio, width=14, height=3, anchor=CENTER, font=('Ivy 25 bold'), bg=co7, fg=co1, relief=FLAT)
+l_total.place(x=450,y=15)
 l_valor_total = Label (frameMeio, text="Valor Total de Todos Os Itens", anchor=NW, font=('Ivy 10 bold'), bg=co7, fg=co1)
-l_valor.place(x=450, y=12)
+l_valor.place(x=450, y=15)
 
-l_qtd = Label(frameMeio, width=14, height=2 ,anchor=CENTER, font=('Ivy 25 bold'), bg=co7, fg=co1, relief=FLAT)
-l_qtd.place(x=450, y=17)
+l_qtd = Label(frameMeio, width=10, height=2 ,anchor=CENTER, font=('Ivy 25 bold'), bg=co7, fg=co1, relief=FLAT)
+l_qtd.place(x=450, y=110)
 l_qtd_itens = Label (frameMeio, text="Quantidade Total de Itens", anchor=NW, font=('Ivy 10 bold'), bg=co7, fg=co1)
-l_qtd_itens.place(x=460, y=92)
+l_qtd_itens.place(x=450, y=114)
 
-janela.mainloop()
+tabela_head = ['Item','Nome', 'Sala/Área', 'Descrição', 'Marca/Modelo', 'Data da Compra','Valor da Compra', 'Número de Série']
 
-def mostrar():
-       tabela_head= ['Item','Nome', 'Sala/Área', 'Descrição', 'Marca/Modelo', 'Data da Compra','Valor da Compra', 'Número de Série']
 lista_itens = []
 
-global tree
 
 tree = ttk.Treeview(frameBaixo, selectmode="extended",columns=tabela_head,show="headings")
+
+#scrollbar vertical
+vsb = ttk.Scrollbar (frameBaixo, orient="vertical", command=tree.yview)
+
+#scrollbar horizontal
+hsb = ttk.Scrollbar (frameBaixo, orient="horizontal",command=tree.yview)
+
+tree.configure(yscrollcommand=vsb.set, xscrollcommand=hsb.set)
+
+tree.grid(column=0, row=0, sticky='nsew' )
+vsb.grid(column=1,row=0,sticky='ns')
+hsb.grid(column=0,row=1,sticky='ew')
+frameBaixo.grid_rowconfigure(0, weight=12)
+
+hd=['center','center','center','center','center','center','center','center']
+h=[40,150,100,160,130,100,100,100]
+
+n=0
+
+for col in tabela_head:
+ tree.heading(col, text=col.title(),anchor=CENTER)
+tree.column(col, width=h[n],anchor=hd[n])
+
+n+=1
+
+for item in lista_itens:
+    tree.insert('','end',values=item)
+
+quantidade =[]
+for  item in lista_itens:
+     quantidade.append(item[6])
+
+Total_valor = sum(quantidade)
+Total_itens = len(quantidade)
+
+l_total['text'] = 'R$ {:,.2F}'.format(Total_valor)
+l_qtd['text'] = Total_itens
+
+janela.mainloop()
